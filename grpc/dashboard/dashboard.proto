@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package dashboardgrpc;
+
+option go_package = "proto/dashboardgrpc";
+
+import "google/protobuf/timestamp.proto";
+
+service DashboardService{
+    rpc Signup(SignupReq) returns (SignupRes);
+    rpc Login(LoginReq) returns (LoginRes);
+    rpc Logout(LogoutReq) returns (LogoutRes);
+    rpc SetUser(SetUserReq) returns (SetUserRes);
+    rpc DeleteUser(DeleteUserReq) returns (DeleteUserRes);
+    rpc GetLoginLogs(LoginLogReq) returns (LoginLogRes);
+    rpc GetUser(GetUserReq) returns (GetUserRes);
+}
+
+message Result{
+    bool Status = 1;
+    string Msg = 2;
+}
+
+message User{
+    string Name = 1;
+    string Email = 2;
+    bool Admin = 3;
+    google.protobuf.Timestamp CreateAt = 4;
+}
+
+message SignupReq{
+    string Name = 1;
+    string Email = 2;
+    string Password = 3;
+    bool Admin = 4;
+}
+
+message SignupRes{
+    Result Result = 1;
+}
+
+message LoginReq {
+    string Email = 1;
+    string Password = 2;
+}
+
+message LoginRes{
+    Result Result = 1;
+    string Token = 2;
+}
+
+message LogoutReq{
+
+}
+
+message LogoutRes{
+    Result Result = 1;
+}
+
+message LoginLog{
+    int32 LogId = 1;
+    User User = 2;
+}
+
+message LoginLogReq{
+    string Token = 1;
+    string UserEmail = 2;
+}
+
+message LoginLogRes{
+    Result result = 1;
+    repeated LoginLog logs = 2;
+}
+
+message SetUserReq{
+    string Token = 1;
+    string Email = 2;
+    string TargetEmail = 3;
+    string ChangedName = 4;
+    string ChangedPassword = 5;
+}
+
+message SetUserRes{
+    Result Result = 1;
+}
+
+message DeleteUserReq{
+    string Token = 1;
+    string Email = 2;
+    string DeleteEmail = 3;
+}
+
+message DeleteUserRes{
+    Result Result = 1;
+}
+
+message GetUserReq{
+    string Email = 1;
+}
+
+message GetUserRes{
+    Result Result = 1;
+    User User = 2;
+}
