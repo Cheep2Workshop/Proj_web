@@ -8,14 +8,18 @@ func RunGin(i chan int) {
 	// run gin server (http)
 	r := gin.Default()
 
+	mgr := JWTManager{
+		Issuer: Issuer,
+		Secret: Secret,
+	}
 	r.Any("/health", Health)
 	r.POST("/signup", Signup)
-	r.POST("/setuser", AuthJwt, SetUser)
+	r.POST("/setuser", mgr.AuthJwt, SetUser)
 	r.POST("/login", Login)
-	r.POST("/getloginlogs", AuthJwt, GetLoginLogs)
+	r.POST("/getloginlogs", mgr.AuthJwt, GetLoginLogs)
 	r.POST("/getuser", GetUser)
-	r.POST("/deleteuser", AuthJwt, DeleteUser)
-	r.POST("/checktoken", AuthJwt)
+	r.POST("/deleteuser", mgr.AuthJwt, DeleteUser)
+	r.POST("/checktoken", mgr.AuthJwt)
 	r.NoRoute(func(ctx *gin.Context) {
 		ctx.JSON(404, "See u")
 	})

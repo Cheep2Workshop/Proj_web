@@ -16,23 +16,28 @@ const (
 	Secret = "SsdDifdoDz"
 )
 
-func CheckJwt(token string) (bool, error) {
+type JWTManager struct {
+	Issuer string
+	Secret string
+}
+
+func (mgr *JWTManager) VerifyJwt(token string) (*utils.DashboardClaims, error) {
 	// parse token
-	claims, err := utils.ParseToken(token, Secret)
+	claims, err := utils.ParseToken(token, mgr.Secret)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 	// check name and email matched
 	_, err = orm.Client.CheckAuth(claims.Name, claims.Email)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
-	return true, nil
+	return claims, nil
 }
 
-func GenerateJWT(user models.User) (string, error) {
-	claims := utils.GenerateClaims(user, Issuer)
-	token, err := utils.GenerateToken(claims, Secret)
+func (mgr *JWTManager) GenerateJwt(user models.User) (string, error) {
+	claims := utils.GenerateClaims(user, mgr.Issuer)
+	token, err := utils.GenerateToken(claims, mgr.Secret)
 	if err != nil {
 		log.Println(err.Error())
 		return "", err
@@ -41,7 +46,7 @@ func GenerateJWT(user models.User) (string, error) {
 }
 
 // (middleware) authorizate the jwt
-func AuthJwt(ctx *gin.Context) {
+func (mgr *JWTManager) AuthJwt(ctx *gin.Context) {
 	auth := ctx.GetHeader("Authorization")
 	splited := strings.Split(auth, "Bearer ")
 	if len(splited) != 2 {
@@ -51,13 +56,10 @@ func AuthJwt(ctx *gin.Context) {
 	}
 	// parse token
 	token := splited[1]
-	result, err := CheckJwt(token)
+	_, err := mgr.VerifyJwt(token)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusForbidden, err.Error())
 		return
-	}
-	if !result {
-		ctx.AbortWithStatusJSON(http.StatusForbidden, "Access not incorrect.")
 	}
 	ctx.Next()
 }

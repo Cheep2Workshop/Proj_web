@@ -1,4 +1,4 @@
-package main
+package dashboardclient
 
 import (
 	"context"
@@ -15,67 +15,28 @@ const (
 	addr = "localhost:50045"
 )
 
-type Stub struct {
-	Client  pb.DashboardServiceClient
-	Context context.Context
+type DashClient struct {
+	Serv pb.DashboardServiceClient
 }
 
 var token string
 
-func main() {
+func runClient() {
 	// Set up a connection to the server.
 	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
-	c := pb.NewDashboardServiceClient(conn)
+	authClient := NewAuthClient(conn, "jack81722@gmail.com", "123456")
+	authClient.Login()
+}
 
-	// Contact the server and print out its response.
+func (client *DashClient) SetUser(req orm.SetUserReq) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	stub := &Stub{c, ctx}
-	stub.Signup("Trash", "Trash@gmail.com", "654321", false)
-	//stub.Login("Trash@gmail.com", "654321")
-	//stub.ChangeUserData("Trash@gmail.com", "", "")
-	// stub.ChangeUserData("Trash@gmail.com", "Trash", "")
-	// stub.ChangeUserData("Trash@gmail.com", "", "999888")
-}
-
-func (stub *Stub) Signup(name string, email string, password string, admin bool) {
-	res, err := stub.Client.Signup(
-		stub.Context,
-		&pb.SignupReq{
-			Name:     name,
-			Email:    email,
-			Password: password,
-			Admin:    admin})
-	if err != nil {
-		log.Fatalf("Connect failed: %v", err)
-	}
-	if res.Result.Status {
-		fmt.Println("Signup succeed.")
-		return
-	}
-	fmt.Println("Signup failed.")
-}
-
-func (stub *Stub) Login(email string, password string) {
-	res, err := stub.Client.Login(stub.Context, &pb.LoginReq{Email: email, Password: password})
-	if err != nil {
-		log.Fatalf("Connect failed: %v", err)
-	}
-	if res.Result.Status {
-		// cache token
-		token = res.Token
-		return
-	}
-	fmt.Println("Login failed.")
-}
-
-func (stub *Stub) SetUser(req orm.SetUserReq) {
-	res, err := stub.Client.SetUser(
-		stub.Context,
+	res, err := client.Serv.SetUser(
+		ctx,
 		&pb.SetUserReq{
 			Token:           token,
 			Email:           req.Email,
@@ -93,9 +54,11 @@ func (stub *Stub) SetUser(req orm.SetUserReq) {
 	fmt.Printf("Change user data failed: %s", res.Result.Msg)
 }
 
-func (stub *Stub) DeleteUser(req orm.DeleteUserReq) {
-	res, err := stub.Client.DeleteUser(
-		stub.Context,
+func (client *DashClient) DeleteUser(req orm.DeleteUserReq) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	res, err := client.Serv.DeleteUser(
+		ctx,
 		&pb.DeleteUserReq{
 			Token:       token,
 			Email:       req.Email,
@@ -112,9 +75,11 @@ func (stub *Stub) DeleteUser(req orm.DeleteUserReq) {
 	fmt.Printf("Delete user failed: %s", res.Result.Msg)
 }
 
-func (stub *Stub) GetUser(email string) {
-	res, err := stub.Client.GetUser(
-		stub.Context,
+func (client *DashClient) GetUser(email string) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	res, err := client.Serv.GetUser(
+		ctx,
 		&pb.GetUserReq{
 			Email: email,
 		},

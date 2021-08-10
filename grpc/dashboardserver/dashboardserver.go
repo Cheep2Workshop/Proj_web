@@ -22,6 +22,7 @@ var SuccessResult = &pb.Result{Status: true}
 type DashServer struct {
 	pb.DashboardServiceServer
 	DBClient *orm.DbClient
+	JwtMgr   *controller.JWTManager
 }
 
 func Run() {
@@ -29,16 +30,43 @@ func Run() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-
-	dashserv := &DashServer{
-		DBClient: orm.Client,
+	// create jwt manager
+	jwtMgr := &controller.JWTManager{
+		Issuer: controller.Issuer,
+		Secret: controller.Secret,
 	}
-	s := grpc.NewServer()
-	pb.RegisterDashboardServiceServer(s, dashserv)
+	// create interceptor
+	authInterceptor := AuthInterceptor{
+		JwtMgr: jwtMgr,
+		AccessibleMethods: map[string]bool{
+			"SetUser":      true,
+			"DeleteUser":   true,
+			"GetLoginLogs": true,
+			"GetUser":      true,
+		},
+	}
+	s := grpc.NewServer(
+		grpc.UnaryInterceptor(authInterceptor.Unary()),
+	)
+	// run service
+	runAuthServer(s, jwtMgr)
+	runDashServer(s, jwtMgr)
+
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
+}
+
+func runDashServer(s *grpc.Server, jwtMgr *controller.JWTManager) {
+
+	dashserv := &DashServer{
+		DBClient: orm.Client,
+		JwtMgr:   jwtMgr,
+	}
+
+	pb.RegisterDashboardServiceServer(s, dashserv)
+
 }
 
 // Signup will save the user if email not duplicate
@@ -65,7 +93,7 @@ func (s *DashServer) Login(ctx context.Context, in *pb.LoginReq) (*pb.LoginRes, 
 		return &pb.LoginRes{Result: &pb.Result{Status: false}}, err
 	}
 	// step2: generate jwt
-	token, err := controller.GenerateJWT(*user)
+	token, err := s.JwtMgr.GenerateJwt(*user)
 	if err != nil {
 		return &pb.LoginRes{Result: &pb.Result{Status: false}}, err
 	}
@@ -85,11 +113,6 @@ func (s *DashServer) Logout(ctx context.Context, in *pb.LogoutReq) (*pb.LogoutRe
 // Change the user data by email
 func (s *DashServer) SetUser(ctx context.Context, in *pb.SetUserReq) (*pb.SetUserRes, error) {
 	var err error
-	// check jwt
-	_, err = controller.CheckJwt(in.Token)
-	if err != nil {
-		return &pb.SetUserRes{Result: &pb.Result{Status: false}}, err
-	}
 	// handle req
 	req := orm.SetUserReq{
 		Email:           in.Email,
@@ -107,11 +130,6 @@ func (s *DashServer) SetUser(ctx context.Context, in *pb.SetUserReq) (*pb.SetUse
 // Delete user by email
 func (s *DashServer) DeleteUser(ctx context.Context, in *pb.DeleteUserReq) (*pb.DeleteUserRes, error) {
 	var err error
-	// chekc jwt
-	_, err = controller.CheckJwt(in.Token)
-	if err != nil {
-		return &pb.DeleteUserRes{Result: &pb.Result{Status: false}}, err
-	}
 	// handle request
 	req := orm.DeleteUserReq{
 		Email:       in.Email,
@@ -127,11 +145,6 @@ func (s *DashServer) DeleteUser(ctx context.Context, in *pb.DeleteUserReq) (*pb.
 // Get the login logs by email
 func (s *DashServer) GetLoginLogs(ctx context.Context, in *pb.LoginLogReq) (*pb.LoginLogRes, error) {
 	var err error
-	// check jwt
-	_, err = controller.CheckJwt(in.Token)
-	if err != nil {
-		return &pb.LoginLogRes{Result: &pb.Result{Status: false}}, err
-	}
 	// get logs
 	results, err := orm.Client.GetLoginLogs(in.UserEmail)
 	if err != nil {

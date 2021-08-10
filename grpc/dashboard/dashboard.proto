@@ -6,10 +6,13 @@ option go_package = "proto/dashboardgrpc";
 
 import "google/protobuf/timestamp.proto";
 
-service DashboardService{
+service AuthService{
     rpc Signup(SignupReq) returns (SignupRes);
     rpc Login(LoginReq) returns (LoginRes);
     rpc Logout(LogoutReq) returns (LogoutRes);
+}
+
+service DashboardService{
     rpc SetUser(SetUserReq) returns (SetUserRes);
     rpc DeleteUser(DeleteUserReq) returns (DeleteUserRes);
     rpc GetLoginLogs(LoginLogReq) returns (LoginLogRes);

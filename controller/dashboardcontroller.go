@@ -57,7 +57,11 @@ func Login(ctx *gin.Context) {
 		return
 	}
 	// step2: generate token
-	token, err := GenerateJWT(*user)
+	mgr := JWTManager{
+		Issuer: Issuer,
+		Secret: Secret,
+	}
+	token, err := mgr.GenerateJwt(*user)
 	if err != nil {
 		log.Println(err.Error())
 		ctx.JSON(http.StatusForbidden, err.Error())
