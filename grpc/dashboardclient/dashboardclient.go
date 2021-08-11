@@ -7,7 +7,7 @@ import (
 	"time"
 
 	pb "github.com/Cheep2Workshop/proj-web/grpc/dashboard"
-	"github.com/Cheep2Workshop/proj-web/orm"
+	"github.com/Cheep2Workshop/proj-web/models/repo"
 	"google.golang.org/grpc"
 )
 
@@ -32,7 +32,7 @@ func runClient() {
 	authClient.Login()
 }
 
-func (client *DashClient) SetUser(req orm.SetUserReq) {
+func (client *DashClient) SetUser(req repo.SetUserReq) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	res, err := client.Serv.SetUser(
@@ -54,7 +54,7 @@ func (client *DashClient) SetUser(req orm.SetUserReq) {
 	fmt.Printf("Change user data failed: %s", res.Result.Msg)
 }
 
-func (client *DashClient) DeleteUser(req orm.DeleteUserReq) {
+func (client *DashClient) DeleteUser(req repo.DeleteUserReq) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	res, err := client.Serv.DeleteUser(

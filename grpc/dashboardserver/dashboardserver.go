@@ -8,7 +8,7 @@ import (
 	"github.com/Cheep2Workshop/proj-web/controller"
 	pb "github.com/Cheep2Workshop/proj-web/grpc/dashboard"
 	"github.com/Cheep2Workshop/proj-web/models"
-	"github.com/Cheep2Workshop/proj-web/orm"
+	"github.com/Cheep2Workshop/proj-web/models/repo"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -21,7 +21,7 @@ var SuccessResult = &pb.Result{Status: true}
 
 type DashServer struct {
 	pb.DashboardServiceServer
-	DBClient *orm.DbClient
+	DBClient *repo.DbClient
 	JwtMgr   *controller.JWTManager
 }
 
@@ -61,7 +61,7 @@ func Run() {
 func runDashServer(s *grpc.Server, jwtMgr *controller.JWTManager) {
 
 	dashserv := &DashServer{
-		DBClient: orm.Client,
+		DBClient: repo.Client,
 		JwtMgr:   jwtMgr,
 	}
 
@@ -77,18 +77,18 @@ func (s *DashServer) Signup(ctx context.Context, in *pb.SignupReq) (*pb.SignupRe
 		Password: in.Password,
 		Admin:    in.Admin,
 	}
-	result, err := orm.Client.Signup(user)
+	result, err := repo.Client.Signup(user)
 	return &pb.SignupRes{Result: &pb.Result{Status: result}}, err
 }
 
 // Login will check the email, password existed and save login log
 func (s *DashServer) Login(ctx context.Context, in *pb.LoginReq) (*pb.LoginRes, error) {
-	req := orm.LoginReq{
+	req := repo.LoginReq{
 		Email:    in.Email,
 		Password: in.Password,
 	}
 	// step1: login
-	user, err := orm.Client.Login(req)
+	user, err := repo.Client.Login(req)
 	if err != nil {
 		return &pb.LoginRes{Result: &pb.Result{Status: false}}, err
 	}
@@ -98,7 +98,7 @@ func (s *DashServer) Login(ctx context.Context, in *pb.LoginReq) (*pb.LoginRes, 
 		return &pb.LoginRes{Result: &pb.Result{Status: false}}, err
 	}
 	// step3: save login log
-	err = orm.Client.SaveLoginLog(in.Email)
+	err = repo.Client.SaveLoginLog(in.Email)
 	if err != nil {
 		return &pb.LoginRes{Result: &pb.Result{Status: false}}, err
 	}
@@ -114,13 +114,13 @@ func (s *DashServer) Logout(ctx context.Context, in *pb.LogoutReq) (*pb.LogoutRe
 func (s *DashServer) SetUser(ctx context.Context, in *pb.SetUserReq) (*pb.SetUserRes, error) {
 	var err error
 	// handle req
-	req := orm.SetUserReq{
+	req := repo.SetUserReq{
 		Email:           in.Email,
 		TargetEmail:     in.TargetEmail,
 		ChangedName:     in.ChangedName,
 		ChangedPassword: in.ChangedPassword,
 	}
-	err = orm.Client.SetUser(req)
+	err = repo.Client.SetUser(req)
 	if err != nil {
 		return &pb.SetUserRes{Result: &pb.Result{Status: false}}, err
 	}
@@ -131,11 +131,11 @@ func (s *DashServer) SetUser(ctx context.Context, in *pb.SetUserReq) (*pb.SetUse
 func (s *DashServer) DeleteUser(ctx context.Context, in *pb.DeleteUserReq) (*pb.DeleteUserRes, error) {
 	var err error
 	// handle request
-	req := orm.DeleteUserReq{
+	req := repo.DeleteUserReq{
 		Email:       in.Email,
 		DeleteEmail: in.DeleteEmail,
 	}
-	err = orm.Client.DeleteUser(req)
+	err = repo.Client.DeleteUser(req)
 	if err != nil {
 		return &pb.DeleteUserRes{Result: &pb.Result{Status: false}}, err
 	}
@@ -146,7 +146,7 @@ func (s *DashServer) DeleteUser(ctx context.Context, in *pb.DeleteUserReq) (*pb.
 func (s *DashServer) GetLoginLogs(ctx context.Context, in *pb.LoginLogReq) (*pb.LoginLogRes, error) {
 	var err error
 	// get logs
-	results, err := orm.Client.GetLoginLogs(in.UserEmail)
+	results, err := repo.Client.GetLoginLogs(in.UserEmail)
 	if err != nil {
 		return &pb.LoginLogRes{Result: &pb.Result{Status: false}}, err
 	}
@@ -169,7 +169,7 @@ func (s *DashServer) GetLoginLogs(ctx context.Context, in *pb.LoginLogReq) (*pb.
 }
 
 func (s *DashServer) GetUser(ctx context.Context, in *pb.GetUserReq) (*pb.GetUserRes, error) {
-	result, err := orm.Client.GetUserByEmail(in.Email)
+	result, err := repo.Client.GetUserByEmail(in.Email)
 	if err != nil {
 		return &pb.GetUserRes{Result: &pb.Result{Status: false, Msg: err.Error()}}, nil
 	}

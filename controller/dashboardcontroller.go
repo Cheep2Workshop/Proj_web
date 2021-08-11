@@ -5,7 +5,8 @@ import (
 	"net/http"
 
 	"github.com/Cheep2Workshop/proj-web/models"
-	"github.com/Cheep2Workshop/proj-web/orm"
+
+	"github.com/Cheep2Workshop/proj-web/models/repo"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +19,7 @@ func Signup(ctx *gin.Context) {
 		ctx.JSON(http.StatusForbidden, err.Error())
 		return
 	}
-	result, err := orm.Client.Signup(*user)
+	result, err := repo.Client.Signup(*user)
 	if result {
 		ctx.JSON(http.StatusOK, result)
 		return
@@ -29,12 +30,12 @@ func Signup(ctx *gin.Context) {
 
 func SetUser(ctx *gin.Context) {
 	var err error
-	var req *orm.SetUserReq
+	var req *repo.SetUserReq
 	err = ctx.Bind(&req)
 	if err != nil {
 		ctx.JSON(http.StatusForbidden, err.Error())
 	}
-	err = orm.Client.SetUser(*req)
+	err = repo.Client.SetUser(*req)
 	if err != nil {
 		ctx.JSON(http.StatusForbidden, err.Error())
 	}
@@ -42,7 +43,7 @@ func SetUser(ctx *gin.Context) {
 
 func Login(ctx *gin.Context) {
 	var err error
-	var req *orm.LoginReq
+	var req *repo.LoginReq
 	err = ctx.Bind(&req)
 	if err != nil {
 		log.Println(err.Error())
@@ -50,7 +51,7 @@ func Login(ctx *gin.Context) {
 		return
 	}
 	// step1: get login user
-	user, err := orm.Client.Login(*req)
+	user, err := repo.Client.Login(*req)
 	if err != nil {
 		log.Println(err.Error())
 		ctx.JSON(http.StatusForbidden, err.Error())
@@ -68,7 +69,7 @@ func Login(ctx *gin.Context) {
 		return
 	}
 	// step3: save log
-	err = orm.Client.SaveLoginLog(req.Email)
+	err = repo.Client.SaveLoginLog(req.Email)
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -85,7 +86,7 @@ func GetLoginLogs(ctx *gin.Context) {
 		ctx.JSON(http.StatusForbidden, err.Error())
 		return
 	}
-	logs, err := orm.Client.GetLoginLogs(*email)
+	logs, err := repo.Client.GetLoginLogs(*email)
 	if err != nil {
 		ctx.JSON(http.StatusForbidden, err.Error())
 		return
@@ -101,7 +102,7 @@ func GetUser(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusForbidden, err.Error())
 	}
-	user, err := orm.Client.GetUserByEmail(*email)
+	user, err := repo.Client.GetUserByEmail(*email)
 	if err != nil {
 		ctx.JSON(http.StatusForbidden, err.Error())
 	}
@@ -110,13 +111,13 @@ func GetUser(ctx *gin.Context) {
 
 func DeleteUser(ctx *gin.Context) {
 	var err error
-	var req *orm.DeleteUserReq
+	var req *repo.DeleteUserReq
 	err = ctx.Bind(&req)
 	if err != nil {
 		ctx.JSON(http.StatusForbidden, err.Error())
 		return
 	}
-	err = orm.Client.DeleteUser(*req)
+	err = repo.Client.DeleteUser(*req)
 	if err != nil {
 		ctx.JSON(http.StatusForbidden, err.Error())
 		return

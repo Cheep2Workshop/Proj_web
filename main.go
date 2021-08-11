@@ -5,7 +5,7 @@ import (
 
 	"github.com/Cheep2Workshop/proj-web/controller"
 	"github.com/Cheep2Workshop/proj-web/grpc/dashboardserver"
-	"github.com/Cheep2Workshop/proj-web/orm"
+	"github.com/Cheep2Workshop/proj-web/models/repo"
 )
 
 func main() {
@@ -19,19 +19,22 @@ func main() {
 }
 
 func init() {
-	origin := orm.DbConfig{
+	origin := repo.DbConfig{
 		Account:  "root",
 		Password: "QMKAJNNjNK9vBO88",
 		Ip:       "127.0.0.1",
 		Port:     "3306",
 		DbName:   "mysql",
 	}
-	dest := orm.DbConfig{
+	dest := repo.DbConfig{
 		Account:  "root",
 		Password: "QMKAJNNjNK9vBO88",
 		Ip:       "127.0.0.1",
 		Port:     "3306",
 		DbName:   "dashboard",
 	}
-	orm.InitRemoteDB(&origin, &dest)
+	repo.InitRemoteDB(&origin, &dest)
+
+	// .sql create table
+	// v1.0 -> v1.1 true (success)
 }

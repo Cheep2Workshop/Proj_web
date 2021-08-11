@@ -6,19 +6,19 @@ import (
 	"github.com/Cheep2Workshop/proj-web/controller"
 	pb "github.com/Cheep2Workshop/proj-web/grpc/dashboard"
 	"github.com/Cheep2Workshop/proj-web/models"
-	"github.com/Cheep2Workshop/proj-web/orm"
+	"github.com/Cheep2Workshop/proj-web/models/repo"
 	"google.golang.org/grpc"
 )
 
 type AuthServer struct {
 	pb.AuthServiceServer
-	DBClient *orm.DbClient
+	DBClient *repo.DbClient
 	JwtMgr   *controller.JWTManager
 }
 
 func runAuthServer(s *grpc.Server, jwtMgr *controller.JWTManager) {
 	authServ := &AuthServer{
-		DBClient: orm.Client,
+		DBClient: repo.Client,
 		JwtMgr:   jwtMgr,
 	}
 	pb.RegisterAuthServiceServer(s, authServ)
@@ -32,18 +32,18 @@ func (s *AuthServer) Signup(ctx context.Context, in *pb.SignupReq) (*pb.SignupRe
 		Password: in.Password,
 		Admin:    in.Admin,
 	}
-	result, err := orm.Client.Signup(user)
+	result, err := repo.Client.Signup(user)
 	return &pb.SignupRes{Result: &pb.Result{Status: result}}, err
 }
 
 // Login will check the email, password existed and save login log
 func (s *AuthServer) Login(ctx context.Context, in *pb.LoginReq) (*pb.LoginRes, error) {
-	req := orm.LoginReq{
+	req := repo.LoginReq{
 		Email:    in.Email,
 		Password: in.Password,
 	}
 	// step1: login
-	user, err := orm.Client.Login(req)
+	user, err := repo.Client.Login(req)
 	if err != nil {
 		return &pb.LoginRes{Result: &pb.Result{Status: false}}, err
 	}
@@ -53,7 +53,7 @@ func (s *AuthServer) Login(ctx context.Context, in *pb.LoginReq) (*pb.LoginRes, 
 		return &pb.LoginRes{Result: &pb.Result{Status: false}}, err
 	}
 	// step3: save login log
-	err = orm.Client.SaveLoginLog(in.Email)
+	err = repo.Client.SaveLoginLog(in.Email)
 	if err != nil {
 		return &pb.LoginRes{Result: &pb.Result{Status: false}}, err
 	}

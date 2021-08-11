@@ -8,8 +8,9 @@ type User struct {
 	Email     string    `gorm:"type:varchar(50); UNIQUE; NOT_NULL"`
 	Password  string    `gorm:"type:varchar(50); NOT_NULL"`
 	Admin     bool      `gorm:"type:bool; default:false"`
-	Banned    bool		`gorm:"type:bool; default:false"`
+	Banned    bool      `gorm:"type:bool; default:false"`
 	CreatedAt time.Time `gorm:"type:timestamp; NOT_NULL"`
+	// Role []string
 }
 
 type DashboardLoginLog struct {

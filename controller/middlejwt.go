@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/Cheep2Workshop/proj-web/models"
-	"github.com/Cheep2Workshop/proj-web/orm"
+	"github.com/Cheep2Workshop/proj-web/models/repo"
 	"github.com/Cheep2Workshop/proj-web/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -28,7 +28,7 @@ func (mgr *JWTManager) VerifyJwt(token string) (*utils.DashboardClaims, error) {
 		return nil, err
 	}
 	// check name and email matched
-	_, err = orm.Client.CheckAuth(claims.Name, claims.Email)
+	_, err = repo.Client.CheckAuth(claims.Name, claims.Email)
 	if err != nil {
 		return nil, err
 	}

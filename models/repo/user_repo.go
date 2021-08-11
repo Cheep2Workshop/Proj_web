@@ -1,6 +1,7 @@
-package orm
+package repo
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -173,6 +174,16 @@ type LoginLogRes struct {
 	Email     string    `json:",omitempty"`
 	Admin     bool      `json:",omitempty"`
 	CreatedAt time.Time `json:",omitempty"`
+}
+
+type LoginLogList []LoginLogRes
+
+func (logRes LoginLogRes) MarshalBinary() ([]byte, error) {
+	return json.Marshal(logRes)
+}
+
+func (list LoginLogList) MarshalBinary() ([]byte, error) {
+	return json.Marshal(list)
 }
 
 func (client *DbClient) GetLoginLogs(email string) ([]LoginLogRes, error) {

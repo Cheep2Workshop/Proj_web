@@ -5,13 +5,13 @@ import (
 	"testing"
 
 	"github.com/Cheep2Workshop/proj-web/models"
-	"github.com/Cheep2Workshop/proj-web/orm"
+	"github.com/Cheep2Workshop/proj-web/models/repo"
 	"github.com/stretchr/testify/require"
 
 	"github.com/stretchr/testify/suite"
 )
 
-var testconfig = orm.DbConfig{
+var testconfig = repo.DbConfig{
 	Account:  "root",
 	Password: "QMKAJNNjNK9vBO88",
 	Ip:       "127.0.0.1",
@@ -21,7 +21,7 @@ var testconfig = orm.DbConfig{
 
 type OrmSuite struct {
 	suite.Suite
-	client *orm.DbClient
+	client *repo.DbClient
 }
 
 // initial user cases
@@ -71,13 +71,13 @@ func (t *OrmSuite) TestSignup() {
 func (t *OrmSuite) TestLogin() {
 	log.Println("Test login")
 	user := usercases[0]
-	req := orm.LoginReq{
+	req := repo.LoginReq{
 		Email:    user.Email,
 		Password: user.Password,
 	}
 	_, err := t.client.Login(req)
 	require.NoError(t.T(), err)
-	_, err = t.client.Login(orm.LoginReq{
+	_, err = t.client.Login(repo.LoginReq{
 		Email:    user.Email,
 		Password: "",
 	})
@@ -91,7 +91,7 @@ type SetUserInfo struct {
 
 func (t *OrmSuite) TestSetUser() {
 	var err error
-	var req orm.SetUserReq
+	var req repo.SetUserReq
 	// valid cases
 	infos := []SetUserInfo{
 		{Name: "", Password: "BillyYO"},
@@ -100,7 +100,7 @@ func (t *OrmSuite) TestSetUser() {
 	}
 	user := &usercases[1]
 	for _, info := range infos {
-		req = orm.SetUserReq{
+		req = repo.SetUserReq{
 			Email:           user.Email,
 			TargetEmail:     user.Email,
 			ChangedName:     info.Name,
@@ -120,7 +120,7 @@ func (t *OrmSuite) TestSetUser() {
 		Password: "",
 		Admin:    false,
 	}
-	req = orm.SetUserReq{
+	req = repo.SetUserReq{
 		Email:           badUser.Email,
 		TargetEmail:     badUser.Email,
 		ChangedName:     "Billy",
@@ -129,7 +129,7 @@ func (t *OrmSuite) TestSetUser() {
 	err = t.client.SetUser(req)
 	require.Error(t.T(), err)
 	// both changed name/email are empty
-	req = orm.SetUserReq{
+	req = repo.SetUserReq{
 		Email:           user.Email,
 		TargetEmail:     user.Email,
 		ChangedName:     "",
@@ -154,7 +154,7 @@ func (t *OrmSuite) TestGetLoginLog() {
 
 func (t *OrmSuite) TestDeleteUser() {
 	charly := usercases[2]
-	req := orm.DeleteUserReq{
+	req := repo.DeleteUserReq{
 		Email:       usercases[0].Email,
 		DeleteEmail: charly.Email,
 	}
