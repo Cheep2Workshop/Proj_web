@@ -1,0 +1,1 @@
+migrate -source file://./ -database "mysql://root:QMKAJNNjNK9vBO88@tcp(localhost:3306)/dashboard" up 1

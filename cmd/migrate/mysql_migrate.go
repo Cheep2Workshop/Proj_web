@@ -14,10 +14,12 @@ func main() {
 	db, err := sql.Open("mysql", "root:QMKAJNNjNK9vBO88@tcp(127.0.0.1:3306)/dashboard?multiStatements=true")
 	if err != nil {
 		log.Println(err.Error())
+		return
 	}
 	driver, err := mysql.WithInstance(db, &mysql.Config{})
 	if err != nil {
 		log.Println(err.Error())
+		return
 	}
 	m, err := migrate.NewWithDatabaseInstance(
 		"file://../sql/",
@@ -26,9 +28,17 @@ func main() {
 	)
 	if err != nil {
 		log.Println(err.Error())
+		return
 	}
 
-	err = m.Steps(1)
+	step := -1
+	version, dirty, err := m.Version()
+	log.Printf("Ver:%v -> %v,Step:%v, Dirty:%v", version, int(version)+step, step, dirty)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	err = m.Steps(step)
 	if err != nil {
 		log.Println(err.Error())
 	}
