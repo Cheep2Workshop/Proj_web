@@ -84,6 +84,42 @@ func (t *OrmSuite) TestLogin() {
 	require.Error(t.T(), err)
 }
 
+func (t *OrmSuite) TestLoginTransationRollback() {
+	log.Println("<----TestLoginTransation---->")
+	req := repo.LoginReq{
+		Email:    usercases[0].Email,
+		Password: usercases[0].Password,
+	}
+	user, err := t.client.BeginLogin(req)
+	require.NoError(t.T(), err)
+	err = t.client.SaveLoginLog(user.Email)
+	require.NoError(t.T(), err)
+	t.client.CancelLogin()
+	logs, err := t.client.GetLoginLogs(req.Email)
+	require.NoError(t.T(), err)
+	for _, l := range logs {
+		log.Println(l)
+	}
+}
+
+func (t *OrmSuite) TestLoginTransationCommit() {
+	log.Println("<----TestLoginTransation---->")
+	req := repo.LoginReq{
+		Email:    usercases[0].Email,
+		Password: usercases[0].Password,
+	}
+	user, err := t.client.BeginLogin(req)
+	require.NoError(t.T(), err)
+	err = t.client.SaveLoginLog(user.Email)
+	require.NoError(t.T(), err)
+	t.client.EndLogin()
+	logs, err := t.client.GetLoginLogs(req.Email)
+	require.NoError(t.T(), err)
+	for _, l := range logs {
+		log.Println(l)
+	}
+}
+
 type SetUserInfo struct {
 	Name     string
 	Password string

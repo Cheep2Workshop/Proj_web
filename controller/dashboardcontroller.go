@@ -51,7 +51,7 @@ func Login(ctx *gin.Context) {
 		return
 	}
 	// step1: get login user
-	user, err := repo.Client.Login(*req)
+	user, err := repo.Client.BeginLogin(*req)
 	if err != nil {
 		log.Println(err.Error())
 		ctx.JSON(http.StatusForbidden, err.Error())
@@ -65,6 +65,7 @@ func Login(ctx *gin.Context) {
 	token, err := mgr.GenerateJwt(*user)
 	if err != nil {
 		log.Println(err.Error())
+		repo.Client.CancelLogin()
 		ctx.JSON(http.StatusForbidden, err.Error())
 		return
 	}
@@ -72,8 +73,12 @@ func Login(ctx *gin.Context) {
 	err = repo.Client.SaveLoginLog(req.Email)
 	if err != nil {
 		log.Println(err.Error())
+		repo.Client.CancelLogin()
+		ctx.JSON(http.StatusForbidden, err.Error())
+		return
 	}
 
+	repo.Client.EndLogin()
 	ctx.JSON(http.StatusOK, gin.H{
 		"token": token,
 	})

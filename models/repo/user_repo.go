@@ -25,6 +25,7 @@ type DbConfig struct {
 
 type DbClient struct {
 	*gorm.DB
+	tx     *gorm.DB
 	Config DbConfig
 }
 
@@ -46,7 +47,7 @@ func (config *DbConfig) GetUrl() string {
 func (config *DbConfig) ConnectDb(cacheClient bool) (*DbClient, error) {
 	url := config.GetUrl()
 	db, err := gorm.Open(mysql.Open(url), &gorm.Config{})
-	client := &DbClient{db, *config}
+	client := &DbClient{db, nil, *config}
 	if cacheClient {
 		Client = client
 	}
@@ -113,7 +114,10 @@ func (client *DbClient) Signup(user models.User) (bool, error) {
 		return false, err
 	}
 	user.Password = keyHash
-	client.Create(&user)
+	result := client.Create(&user)
+	if result.Error != nil {
+		return false, result.Error
+	}
 	log.Println(user)
 	return true, nil
 }
@@ -126,7 +130,7 @@ func (client *DbClient) CheckUserExist(email string) bool {
 
 func (client *DbClient) CheckAuth(name string, email string) (bool, error) {
 	var user *models.User
-	result := client.Model(&models.User{}).First(&user, "name = ? AND email = ?", name, email)
+	result := client.Scopes().Model(&models.User{}).First(&user, "name = ? AND email = ?", name, email)
 	if result.Error != nil {
 		return false, result.Error
 	}
@@ -136,6 +140,43 @@ func (client *DbClient) CheckAuth(name string, email string) (bool, error) {
 type LoginReq struct {
 	Email    string `json:",omitempty"`
 	Password string `json:",omitempty"`
+}
+
+// Begin transation of login
+func (client *DbClient) BeginLogin(req LoginReq) (*models.User, error) {
+	var user *models.User
+	hash := utils.DefaultParams.ToHash(Salt)
+	client.tx = client.Begin()
+	result := client.tx.Model(&models.User{}).First(&user, "email = ?", req.Email)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	// check matched password
+	match, err := utils.ComparePasswordAndHash(req.Password, user.Password, hash)
+	if match {
+		return user, nil
+	}
+	return nil, err
+}
+
+// Cancel and rollback transation of login
+func (client *DbClient) CancelLogin() error {
+	if client.tx == nil {
+		return errors.New("tx is nil.")
+	}
+	client.tx.Rollback()
+	client.tx = nil
+	return nil
+}
+
+// End and commit of login
+func (client *DbClient) EndLogin() error {
+	if client.tx == nil {
+		return errors.New("tx is nil.")
+	}
+	client.tx.Commit()
+	client.tx = nil
+	return nil
 }
 
 func (client *DbClient) Login(req LoginReq) (*models.User, error) {
@@ -152,12 +193,18 @@ func (client *DbClient) Login(req LoginReq) (*models.User, error) {
 
 func (client *DbClient) SaveLoginLog(email string) error {
 	var user models.User
-	result := client.First(&user, "email = ?", email)
+	var db *gorm.DB
+	if client.tx != nil {
+		db = client.tx
+	} else {
+		db = client.DB
+	}
+	result := db.First(&user, "email = ?", email)
 	if result.Error != nil {
 		return result.Error
 	}
 	loginLog := models.DashboardLoginLog{UserId: user.ID}
-	client.Create(&loginLog)
+	db.Create(&loginLog)
 	log.Printf("Save login log: %v (%v) at %s", user.Name, user.Email, loginLog.CreatedAt.Format("2006-01-02 15:04:05"))
 	return nil
 }
@@ -257,8 +304,7 @@ func (client *DbClient) DeleteUser(req DeleteUserReq) error {
 	// check the access of delete
 	access := req.Email == req.DeleteEmail || author.Admin
 	if access {
-		user := &models.User{Email: req.DeleteEmail}
-		result := client.Delete(&user, &user)
+		result := client.Where("email = ?", req.DeleteEmail).Delete(&models.User{})
 		return result.Error
 	}
 	return errors.New("Permission denied to delete user.")

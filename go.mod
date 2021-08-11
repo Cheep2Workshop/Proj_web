@@ -8,6 +8,8 @@ require (
 	github.com/go-playground/validator/v10 v10.8.0 // indirect
 	github.com/go-redis/redis/v8 v8.11.2
 	github.com/go-redis/redismock/v8 v8.0.6 // indirect
+	github.com/go-sql-driver/mysql v1.6.0
+	github.com/golang-migrate/migrate v3.5.4+incompatible
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/jinzhu/gorm v1.9.16
 	github.com/json-iterator/go v1.1.11 // indirect
@@ -24,4 +26,5 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gorm.io/driver/mysql v1.1.1
 	gorm.io/gorm v1.21.12
+	gorm.io/plugin/soft_delete v1.0.2
 )
