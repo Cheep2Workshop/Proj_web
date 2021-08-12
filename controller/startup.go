@@ -1,10 +1,18 @@
 package controller
 
 import (
+	"context"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/gin-gonic/gin"
 )
 
-func RunGin(i chan int) {
+func RunGin() {
 	// run gin server (http)
 	r := gin.Default()
 
@@ -24,6 +32,24 @@ func RunGin(i chan int) {
 		ctx.JSON(404, "See u")
 	})
 	// listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
-	r.Run()
-	i <- 0
+
+	srv := &http.Server{
+		Addr:    ":8080",
+		Handler: r,
+	}
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Listen failed: %s\n", err)
+		}
+	}()
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutdown Server ...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 0*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("Server shutdown failed: ", err)
+	}
 }

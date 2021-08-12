@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/Cheep2Workshop/proj-web/controller"
 	"github.com/Cheep2Workshop/proj-web/grpc/dashboardserver"
 	"github.com/Cheep2Workshop/proj-web/models/repo"
@@ -12,10 +10,7 @@ func main() {
 	// run grpc server
 	go dashboardserver.Run()
 
-	i := make(chan int)
-	go controller.RunGin(i)
-	result := <-i
-	log.Println(result)
+	controller.RunGin()
 }
 
 func init() {
