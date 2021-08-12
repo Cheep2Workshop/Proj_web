@@ -11,6 +11,10 @@ import (
 )
 
 func Signup(ctx *gin.Context) {
+	// step 1 check accont
+	// step 2 modify info
+	// step 3 save user
+	// setp F ok
 	var err error
 	var user *models.User
 	err = ctx.Bind(&user)
