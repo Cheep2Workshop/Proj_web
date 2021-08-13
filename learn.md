@@ -57,5 +57,9 @@ use 資料庫正規化 in your project
 #### learn
 
 notify 
+gin: download
+gin: graceful shutdown
+pub/sub (redis)
+
 
 
