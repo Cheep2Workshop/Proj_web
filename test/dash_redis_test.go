@@ -75,6 +75,25 @@ func (t *RedisSuite) TestDelete() {
 	require.Equal(t.T(), redis.Nil, err)
 }
 
+func (t *RedisSuite) TestSend() {
+	channel := "test"
+	msg := "HelloWorld!"
+	w := make(chan int, 1)
+
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		sub := t.Redis.Client.Subscribe(ctx, channel)
+		ch := sub.Channel()
+		log.Println((<-ch).Payload)
+		w <- 1
+	}()
+	time.Sleep(time.Second)
+	cmd := t.Redis.Client.Publish(context.Background(), channel, msg)
+	require.NoError(t.T(), cmd.Err())
+	<-w
+}
+
 func TestRedis(t *testing.T) {
 	suite.Run(t, new(RedisSuite))
 }
