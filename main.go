@@ -1,16 +1,37 @@
 package main
 
 import (
+	"context"
+	"log"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
+
 	"github.com/Cheep2Workshop/proj-web/controller"
 	"github.com/Cheep2Workshop/proj-web/grpc/dashboardserver"
 	"github.com/Cheep2Workshop/proj-web/models/repo"
 )
 
 func main() {
-	// run grpc server
-	go dashboardserver.Run()
+	// initial context and waitgroup
+	c, cancel := context.WithCancel(context.Background())
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
 
-	controller.RunGin()
+	// run grpc server
+	go dashboardserver.Run(c, wg)
+	// run http server
+	go controller.RunGin(c, wg)
+
+	// wait for signal
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	log.Println("Shutdown Server ...")
+	cancel()
+	wg.Wait()
 }
 
 func init() {

@@ -4,15 +4,13 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-func RunGin() {
+func RunGin(c context.Context, wg *sync.WaitGroup) {
 	// run gin server (http)
 	r := gin.Default()
 
@@ -42,14 +40,15 @@ func RunGin() {
 			log.Fatalf("Listen failed: %s\n", err)
 		}
 	}()
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	log.Println("Shutdown Server ...")
+
+	// wait for cacnel
+	<-c.Done()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+	log.Println("Shutdown http server ...")
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server shutdown failed: ", err)
 	}
+	wg.Done()
 }

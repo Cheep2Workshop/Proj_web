@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net"
+	"sync"
 
 	"github.com/Cheep2Workshop/proj-web/controller"
 	pb "github.com/Cheep2Workshop/proj-web/grpc/dashboard"
@@ -25,7 +26,7 @@ type DashServer struct {
 	JwtMgr   *controller.JWTManager
 }
 
-func Run() {
+func Run(c context.Context, wg *sync.WaitGroup) {
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -53,9 +54,19 @@ func Run() {
 	runDashServer(s, jwtMgr)
 
 	log.Printf("server listening at %v", lis.Addr())
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
+	go func() {
+		if err := s.Serve(lis); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
+	}()
+
+	// wait for cancel
+	<-c.Done()
+	// grpc graceful shutdown
+	s.GracefulStop()
+	log.Println("Shutdown grpc server ...")
+
+	wg.Done()
 }
 
 func runDashServer(s *grpc.Server, jwtMgr *controller.JWTManager) {
