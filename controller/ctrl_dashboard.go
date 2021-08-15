@@ -4,7 +4,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Cheep2Workshop/proj-web/dashredis"
 	"github.com/Cheep2Workshop/proj-web/models"
+	"github.com/go-redis/redis/v8"
 
 	"github.com/Cheep2Workshop/proj-web/models/repo"
 	"github.com/gin-gonic/gin"
@@ -89,17 +91,31 @@ func Login(ctx *gin.Context) {
 }
 
 func GetLoginLogs(ctx *gin.Context) {
-	var email *string
+	var email string
 	err := ctx.Bind(&email)
 	if err != nil {
 		ctx.JSON(http.StatusForbidden, err.Error())
 		return
 	}
-	logs, err := repo.Client.GetLoginLogs(*email)
+	// try get cache from redis
+	redisClient := dashredis.NewRedisClient()
+	logs, err := redisClient.GetLoginLogs(email)
+	if err != nil && err != redis.Nil {
+		ctx.JSON(http.StatusForbidden, err.Error())
+		return
+	}
+	if err == nil {
+		ctx.JSON(http.StatusOK, logs)
+		return
+	}
+
+	logs, err = repo.Client.GetLoginLogs(email)
 	if err != nil {
 		ctx.JSON(http.StatusForbidden, err.Error())
 		return
 	}
+	// cache result into redis
+	redisClient.SetLoginLogs(email, logs...)
 	ctx.JSON(http.StatusOK, logs)
 }
 
@@ -131,5 +147,9 @@ func DeleteUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusForbidden, err.Error())
 		return
 	}
+
+	// delete cache
+	redisClient := dashredis.NewRedisClient()
+	redisClient.DeleteWithEmail(req.DeleteEmail)
 	ctx.JSON(http.StatusOK, req.DeleteEmail)
 }
