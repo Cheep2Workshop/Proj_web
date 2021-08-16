@@ -67,5 +67,7 @@ db deadlock
 #### learn
 
 notify 
+sql injection
+regex
 
 
