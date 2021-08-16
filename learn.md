@@ -48,18 +48,24 @@
 - transation 實作
 - 資料庫正規化概念學習
 
-#### homework
-
-use 資料庫正規化 in your project
-
 ### 08/12
+graceful shutdown
+
+### 08/14
+gin: download
+
+### 08/15
+implement gin/grpc: graceful shutdown
+goroutine & context
+pub/sub (redis)
+cache (redis)
+
+### 8/16
+sync.Mutex, sync.RWMutex
+db deadlock
 
 #### learn
 
 notify 
-gin: download
-gin: graceful shutdown
-pub/sub (redis)
-
 
 
