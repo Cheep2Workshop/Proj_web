@@ -3,6 +3,7 @@ package dashredis
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	orm "github.com/Cheep2Workshop/proj-web/models/repo"
 	"github.com/go-redis/redis/v8"
@@ -23,7 +24,9 @@ func NewRedisClient() *RedisClient {
 
 func (client *RedisClient) SetLoginLogs(email string, logs ...orm.LoginLogRes) error {
 	list := orm.LoginLogList(logs)
-	status := client.Client.Set(context.Background(), email, list, 0)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	status := client.Client.Set(ctx, email, list, 0)
 	if status.Err() != nil {
 		return status.Err()
 	}
@@ -32,7 +35,9 @@ func (client *RedisClient) SetLoginLogs(email string, logs ...orm.LoginLogRes) e
 
 // GetLoginLogs will return nil error while key not found
 func (client *RedisClient) GetLoginLogs(email string) (orm.LoginLogList, error) {
-	result, err := client.Client.Get(context.Background(), email).Result()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	result, err := client.Client.Get(ctx, email).Result()
 	if err != nil {
 		return nil, err
 	}

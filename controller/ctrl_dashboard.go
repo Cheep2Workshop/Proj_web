@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"log"
 	"net/http"
 
@@ -100,7 +101,7 @@ func GetLoginLogs(ctx *gin.Context) {
 	// try get cache from redis
 	redisClient := dashredis.NewRedisClient()
 	logs, err := redisClient.GetLoginLogs(email)
-	if err != nil && err != redis.Nil {
+	if err != nil && err != redis.Nil && err != context.DeadlineExceeded {
 		ctx.JSON(http.StatusForbidden, err.Error())
 		return
 	}
@@ -115,7 +116,11 @@ func GetLoginLogs(ctx *gin.Context) {
 		return
 	}
 	// cache result into redis
-	redisClient.SetLoginLogs(email, logs...)
+	err = redisClient.SetLoginLogs(email, logs...)
+	if err != nil && err != context.DeadlineExceeded {
+		ctx.JSON(http.StatusForbidden, err.Error())
+		return
+	}
 	ctx.JSON(http.StatusOK, logs)
 }
 
