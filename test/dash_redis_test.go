@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Cheep2Workshop/proj-web/dashredis"
 	"github.com/Cheep2Workshop/proj-web/models/repo"
+	"github.com/Cheep2Workshop/proj-web/service"
 	"github.com/go-redis/redis/v8"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -15,13 +15,13 @@ import (
 
 type RedisSuite struct {
 	suite.Suite
-	Redis *dashredis.RedisClient
+	Redis *service.RedisClient
 	// Mock   redismock.ClientMock
 }
 
 func (t *RedisSuite) SetupSuite() {
 	var err error
-	t.Redis = dashredis.NewRedisClient()
+	t.Redis = service.NewRedisClient()
 	size := 3
 	testVals = make([]repo.LoginLogRes, size)
 	for i := 0; i < size; i++ {

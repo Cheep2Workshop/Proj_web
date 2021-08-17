@@ -1,4 +1,4 @@
-package dashredis
+package service
 
 import (
 	"context"

@@ -7,7 +7,7 @@ import (
 
 	"github.com/Cheep2Workshop/proj-web/models"
 	"github.com/Cheep2Workshop/proj-web/models/repo"
-	"github.com/Cheep2Workshop/proj-web/utils"
+	"github.com/Cheep2Workshop/proj-web/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,9 +21,9 @@ type JWTManager struct {
 	Secret string
 }
 
-func (mgr *JWTManager) VerifyJwt(token string) (*utils.DashboardClaims, error) {
+func (mgr *JWTManager) VerifyJwt(token string) (*service.DashboardClaims, error) {
 	// parse token
-	claims, err := utils.ParseToken(token, mgr.Secret)
+	claims, err := service.ParseToken(token, mgr.Secret)
 	if err != nil {
 		return nil, err
 	}
@@ -36,8 +36,8 @@ func (mgr *JWTManager) VerifyJwt(token string) (*utils.DashboardClaims, error) {
 }
 
 func (mgr *JWTManager) GenerateJwt(user models.User) (string, error) {
-	claims := utils.GenerateClaims(user, mgr.Issuer)
-	token, err := utils.GenerateToken(claims, mgr.Secret)
+	claims := service.GenerateClaims(user, mgr.Issuer)
+	token, err := service.GenerateToken(claims, mgr.Secret)
 	if err != nil {
 		log.Println(err.Error())
 		return "", err

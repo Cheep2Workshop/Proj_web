@@ -1,4 +1,4 @@
-package utils
+package service
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/Cheep2Workshop/proj-web/models"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/Cheep2Workshop/proj-web/vendor/github.com/dgrijalva/jwt-go"
 )
 
 type DashboardClaims struct {

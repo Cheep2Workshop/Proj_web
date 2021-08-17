@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/Cheep2Workshop/proj-web/models"
-	"github.com/Cheep2Workshop/proj-web/utils"
+	"github.com/Cheep2Workshop/proj-web/service"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -26,8 +26,8 @@ func (t *JwtSuite) TestGenerateToken() {
 		Email: "Alice@gmail.com",
 	}
 
-	claim := utils.GenerateClaims(user, issuer)
-	token, err := utils.GenerateToken(claim, secret)
+	claim := service.GenerateClaims(user, issuer)
+	token, err := service.GenerateToken(claim, secret)
 	require.NoError(t.T(), err)
 	j, err := json.Marshal(claim)
 	require.NoError(t.T(), err)
@@ -42,10 +42,10 @@ func (t *JwtSuite) TestParseToken() {
 		Email: "Alice@gmail.com",
 	}
 
-	claim := utils.GenerateClaims(user, issuer)
-	token, err := utils.GenerateToken(claim, secret)
+	claim := service.GenerateClaims(user, issuer)
+	token, err := service.GenerateToken(claim, secret)
 	require.NoError(t.T(), err)
-	claims, err := utils.ParseToken(token, secret)
+	claims, err := service.ParseToken(token, secret)
 	require.NoError(t.T(), err)
 	require.Equal(t.T(), user.Name, claims.Name)
 	require.Equal(t.T(), user.Email, claims.Email)
