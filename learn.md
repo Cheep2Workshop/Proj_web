@@ -64,10 +64,26 @@ cache (redis)
 sync.Mutex, sync.RWMutex
 db deadlock
 
+### homework
+
+
 #### learn
 
 notify 
 sql injection
 regex
+websocket
+dotenv
 
+- frontend
+    - React
+    - Vue
+    - Angular
+    - html
+    - javascript
+    - jQuery(js)
+    - Typescript
+    - CSS (sass)
+    - npm
+    - nodejs (express framework)
 

@@ -36,6 +36,12 @@ migrate -source file://./ -database "mysql://root:QMKAJNNjNK9vBO88@tcp(localhost
 - 使用者登入
     - 自身的登入紀錄
 
+### Step 3
+- 前端(Nodejs)
+    - 登入畫面(元件)
+    - 首頁
+    - 登入記錄畫面
+
 ## Arch Page
 
 ### Step 1
