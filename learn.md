@@ -64,12 +64,30 @@ cache (redis)
 sync.Mutex, sync.RWMutex
 db deadlock
 
+### 8/19
+N+1 query problem
+
 ### homework
 
+哪個客人買最多A商品
+- order table (id, purchaser_id, product_id, created_at)
+- order_detail (id, order_id, product_id, product_amount)
+- product table (id, product_name, product_cost, created_at)
+- discount table (id, product_id, percentage, start_at, end_at)
+
+mysql百萬級query沒啥問題
+訂單一定成功
+
+sql preload
+
+sql partition
+水平拆分、垂直拆分
+
+刪除db時也要刪除cache(redis)
 
 #### learn
 
-notify 
+notify
 sql injection
 regex
 websocket
