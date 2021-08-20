@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/Cheep2Workshop/proj-web/models"
-	"github.com/Cheep2Workshop/proj-web/vendor/github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 )
 
 type DashboardClaims struct {
