@@ -15,4 +15,5 @@ type User struct {
 	CreatedAt time.Time             `gorm:"type:timestamp; NOT_NULL"`
 	DeleteAt  soft_delete.DeletedAt `gorm:"default:0"`
 	// Role []string
+	// Orders []Order				`gorm:"foreignKey:user_id;references:id"`
 }

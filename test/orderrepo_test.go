@@ -85,7 +85,10 @@ func (t *OrderSuite) TestGetOrder() {
 	orders, err := t.client.GetOrders(1)
 	require.NoError(t.T(), err)
 	for _, o := range orders {
-		log.Printf("%+v\n", o)
+		log.Printf("%v\n", o)
+		for _, d := range o.OrderDetails {
+			log.Printf("%+v\n", d)
+		}
 	}
 }
 
