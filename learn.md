@@ -90,6 +90,7 @@ sql partition
 
 #### learn
 
+hashids
 notify
 sql injection
 regex

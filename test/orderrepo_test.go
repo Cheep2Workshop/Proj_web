@@ -61,7 +61,7 @@ func (t *OrderSuite) SetupSuite() {
 }
 
 func (t *OrderSuite) TearDownSuite() {
-	//t.client.Migrator().DropTable(&models.Product{}, &models.Order{}, &models.OrderDetail{})
+	t.client.Migrator().DropTable(&models.Product{}, &models.Order{}, &models.OrderDetail{})
 }
 
 func (t *OrderSuite) TestAddOrder() {
@@ -79,6 +79,7 @@ func (t *OrderSuite) TestAddOrder() {
 	}
 	err = t.client.AddOrder(req)
 	require.NoError(t.T(), err)
+
 }
 
 func (t *OrderSuite) TestGetOrder() {
