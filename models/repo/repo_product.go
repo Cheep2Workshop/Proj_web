@@ -36,8 +36,8 @@ func (client *DbClient) UpdateProduct(p *models.Product) error {
 	return err
 }
 
-func (client *DbClient) DeleteProductById(pid int) error {
-	err := client.Model(&models.Product{}).Delete(&models.Product{}, pid).Error
+func (client *DbClient) DeleteProductById(pids ...int) error {
+	err := client.Model(&models.Product{}).Delete(&models.Product{}, pids).Error
 	return err
 }
 
@@ -63,6 +63,11 @@ func (client *DbClient) GetAllProducts() ([]models.Product, error) {
 	var products []models.Product
 	err = client.Model(&models.Product{}).Scan(&products).Error
 	return products, err
+}
+
+func (client *DbClient) SetProduct(p *models.Product) error {
+	err := client.Save(p).Error
+	return err
 }
 
 func checkProduct(p *models.Product) error {

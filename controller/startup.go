@@ -19,13 +19,9 @@ func RunGin(c context.Context, wg *sync.WaitGroup) {
 		Secret: Secret,
 	}
 	r.Any("/health", Health)
-	r.POST("/signup", Signup)
-	r.POST("/setuser", mgr.AuthJwt, SetUser)
-	r.POST("/login", Login)
-	r.POST("/getloginlogs", mgr.AuthJwt, GetLoginLogs)
-	r.POST("/getuser", GetUser)
-	r.POST("/deleteuser", mgr.AuthJwt, DeleteUser)
-	r.POST("/checktoken", mgr.AuthJwt)
+	UserGroup(r, &mgr)
+	ShopGroup(r, &mgr)
+	ManageGroup(r, &mgr)
 	r.NoRoute(func(ctx *gin.Context) {
 		ctx.JSON(404, "See u")
 	})
@@ -51,4 +47,27 @@ func RunGin(c context.Context, wg *sync.WaitGroup) {
 		log.Fatal("Server shutdown failed: ", err)
 	}
 	wg.Done()
+}
+
+func UserGroup(r *gin.Engine, mgr *JWTManager) {
+	g := r.Group("user")
+	g.POST("/signup", Signup)
+	g.POST("/setuser", mgr.AuthJwt, SetUser)
+	g.POST("/login", Login)
+	g.POST("/getloginlogs", mgr.AuthJwt, GetLoginLogs)
+	g.POST("/getuser", GetUser)
+	g.POST("/deleteuser", mgr.AuthJwt, DeleteUser)
+	g.POST("/checktoken", mgr.AuthJwt)
+}
+
+func ShopGroup(r *gin.Engine, mgr *JWTManager) {
+	g := r.Group("shop")
+	g.POST("buy", mgr.AuthJwt, Buy)
+	g.GET("list", ListProduct)
+}
+
+func ManageGroup(r *gin.Engine, mgr *JWTManager) {
+	g := r.Group("manage")
+	g.POST("addproduct", mgr.AuthJwt, AddProduct)
+	g.POST("setproduct", mgr.AuthJwt, SetProduct)
 }

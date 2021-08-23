@@ -79,18 +79,50 @@ func (t *OrderSuite) TestAddOrder() {
 	}
 	err = t.client.AddOrder(req)
 	require.NoError(t.T(), err)
-
 }
 
 func (t *OrderSuite) TestGetOrder() {
 	orders, err := t.client.GetOrders(1)
 	require.NoError(t.T(), err)
 	for _, o := range orders {
-		log.Printf("%v\n", o)
+		log.Printf("%v, total:%v\n", o, o.GetSumPrice())
 		for _, d := range o.OrderDetails {
 			log.Printf("%+v\n", d)
 		}
 	}
+}
+
+func (t *OrderSuite) TestDeleteProduct() {
+	var err error
+	p := models.Product{
+		ProductName: "F",
+		ProductDesc: "FFF",
+		Price:       100,
+	}
+	err = t.client.AddProduct(&p)
+	require.NoError(t.T(), err)
+	err = t.client.DeleteProduct(p)
+	require.NoError(t.T(), err)
+	result, err := t.client.GetProduct(p.Id)
+	require.Error(t.T(), err)
+	log.Println(result)
+}
+
+func (t *OrderSuite) TestSetProduct() {
+	var err error
+	p := models.Product{
+		ProductName: "G",
+		ProductDesc: "GGG",
+		Price:       10,
+	}
+	err = t.client.AddProduct(&p)
+	require.NoError(t.T(), err)
+	p.Price = 100
+	err = t.client.SetProduct(&p)
+	require.NoError(t.T(), err)
+	result, err := t.client.GetProduct(p.Id)
+	require.NoError(t.T(), err)
+	require.Equal(t.T(), 100, result.Price)
 }
 
 func TestOrder(t *testing.T) {

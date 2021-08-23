@@ -66,3 +66,7 @@ func (client *DbClient) GetOrders(oids ...int) ([]models.Order, error) {
 		Find(&orders).Error
 	return orders, err
 }
+
+// func (client *DbClient) DeleteOrder(oid int) error {
+// 	return errors.New("")
+// }
