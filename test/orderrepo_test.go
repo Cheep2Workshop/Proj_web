@@ -77,8 +77,9 @@ func (t *OrderSuite) TestAddOrder() {
 		ProductId: pids,
 		Amount:    amount,
 	}
-	err = t.client.AddOrder(req)
+	_, err = t.client.AddOrder(req)
 	require.NoError(t.T(), err)
+
 }
 
 func (t *OrderSuite) TestGetOrder() {

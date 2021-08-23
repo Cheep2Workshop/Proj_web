@@ -8,16 +8,20 @@ import (
 )
 
 func Buy(ctx *gin.Context) {
+	var err error
 	req := repo.OrderReq{}
 
-	ctx.Bind(req)
-	if err := repo.Client.AddOrder(req); err != nil {
+	err = ctx.Bind(&req)
+	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusForbidden, err.Error())
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "ok",
-	})
+	order, err := repo.Client.AddOrder(req)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusForbidden, err.Error())
+		return
+	}
+	ctx.JSON(http.StatusOK, order)
 }
 
 func ListProduct(ctx *gin.Context) {

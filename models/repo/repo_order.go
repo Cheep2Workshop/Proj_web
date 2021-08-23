@@ -13,10 +13,10 @@ type OrderReq struct {
 	Amount    []int
 }
 
-func (client *DbClient) AddOrder(req OrderReq) error {
+func (client *DbClient) AddOrder(req OrderReq) (models.Order, error) {
 	var err error
 	if len(req.ProductId) != len(req.Amount) {
-		return errors.New("Product and amount not matched.")
+		return models.Order{}, errors.New("Product and amount not matched.")
 	}
 	tx := client.Begin()
 	order := models.Order{
@@ -24,7 +24,7 @@ func (client *DbClient) AddOrder(req OrderReq) error {
 	}
 	if err = tx.Create(&order).Error; err != nil {
 		tx.Rollback()
-		return err
+		return models.Order{}, err
 	}
 
 	details := make([]models.OrderDetail, len(req.ProductId))
@@ -38,10 +38,15 @@ func (client *DbClient) AddOrder(req OrderReq) error {
 	// debug : diff of batch vs create
 	if err = tx.Create(&details).Error; err != nil {
 		tx.Rollback()
-		return err
+		return models.Order{}, err
 	}
 	tx.Commit()
-	return nil
+
+	orders, err := client.GetOrders(order.Id)
+	if err != nil {
+		return models.Order{}, err
+	}
+	return orders[0], nil
 }
 
 func (client *DbClient) GetOrders(oids ...int) ([]models.Order, error) {

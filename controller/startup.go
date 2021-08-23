@@ -70,4 +70,5 @@ func ManageGroup(r *gin.Engine, mgr *JWTManager) {
 	g := r.Group("manage")
 	g.POST("addproduct", mgr.AuthJwt, AddProduct)
 	g.POST("setproduct", mgr.AuthJwt, SetProduct)
+	g.POST("deleteproduct", mgr.AuthJwt, DeleteProduct)
 }
