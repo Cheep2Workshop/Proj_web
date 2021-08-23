@@ -67,6 +67,9 @@ db deadlock
 ### 8/19
 N+1 query problem
 
+### 8/21
+join & preload
+
 ### homework
 
 哪個客人買最多A商品
@@ -87,6 +90,7 @@ sql partition
 
 #### learn
 
+hashids
 notify
 sql injection
 regex

@@ -15,10 +15,5 @@ type User struct {
 	CreatedAt time.Time             `gorm:"type:timestamp; NOT_NULL"`
 	DeleteAt  soft_delete.DeletedAt `gorm:"default:0"`
 	// Role []string
-}
-
-type DashboardLoginLog struct {
-	ID        int       `gorm:"primary_key; AUTO_INCREMENT"`
-	UserId    int       `gorm:"foreign_key"`
-	CreatedAt time.Time `gorm:"type:timestamp; NOT_NULL"`
+	// Orders []Order				`gorm:"foreignKey:user_id;references:id"`
 }
