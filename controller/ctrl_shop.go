@@ -4,19 +4,20 @@ import (
 	"net/http"
 
 	"github.com/Cheep2Workshop/proj-web/models/repo"
+	"github.com/Cheep2Workshop/proj-web/service"
 	"github.com/gin-gonic/gin"
 )
 
 func Buy(ctx *gin.Context) {
 	var err error
-	req := repo.OrderReq{}
+	req := service.OrderReq{}
 
 	err = ctx.Bind(&req)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusForbidden, err.Error())
 		return
 	}
-	order, err := repo.Client.AddOrder(req)
+	order, err := service.AddOrder(req)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusForbidden, err.Error())
 		return

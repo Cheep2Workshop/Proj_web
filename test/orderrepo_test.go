@@ -47,17 +47,12 @@ func (t *OrderSuite) SetupSuite() {
 	client.AddProducts(prods...)
 
 	// create order
-	pids := make([]int, len(prods))
-	for i, p := range prods {
-		pids[i] = p.Id
+	items := map[int]int{
+		1: 2,
+		2: 4,
+		3: 6,
 	}
-	amount := []int{2, 4, 6}
-	req := repo.OrderReq{
-		UserId:    customer.ID,
-		ProductId: pids,
-		Amount:    amount,
-	}
-	client.AddOrder(req)
+	client.AddOrder(customer.ID, items)
 }
 
 func (t *OrderSuite) TearDownSuite() {
@@ -67,17 +62,12 @@ func (t *OrderSuite) TearDownSuite() {
 func (t *OrderSuite) TestAddOrder() {
 	customer, err := t.client.GetUserByEmail(user.Email)
 	require.NoError(t.T(), err)
-	pids := make([]int, len(prods))
-	for i, p := range prods {
-		pids[i] = p.Id
+	items := map[int]int{
+		1: 1,
+		2: 2,
+		3: 3,
 	}
-	amount := []int{1, 2, 3}
-	req := repo.OrderReq{
-		UserId:    customer.ID,
-		ProductId: pids,
-		Amount:    amount,
-	}
-	_, err = t.client.AddOrder(req)
+	_, err = t.client.AddOrder(customer.ID, items)
 	require.NoError(t.T(), err)
 
 }

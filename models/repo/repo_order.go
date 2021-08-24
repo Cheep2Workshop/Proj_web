@@ -1,39 +1,30 @@
 package repo
 
 import (
-	"errors"
-
 	"github.com/Cheep2Workshop/proj-web/models"
 	"gorm.io/gorm/clause"
 )
 
-type OrderReq struct {
-	UserId    int
-	ProductId []int
-	Amount    []int
-}
-
-func (client *DbClient) AddOrder(req OrderReq) (models.Order, error) {
+func (client *DbClient) AddOrder(userId int, items map[int]int) (models.Order, error) {
 	var err error
-	if len(req.ProductId) != len(req.Amount) {
-		return models.Order{}, errors.New("Product and amount not matched.")
-	}
 	tx := client.Begin()
 	order := models.Order{
-		UserId: req.UserId,
+		UserId: userId,
 	}
 	if err = tx.Create(&order).Error; err != nil {
 		tx.Rollback()
 		return models.Order{}, err
 	}
 
-	details := make([]models.OrderDetail, len(req.ProductId))
-	for i, p := range req.ProductId {
+	details := make([]models.OrderDetail, len(items))
+	i := 0
+	for pid, count := range items {
 		details[i] = models.OrderDetail{
 			OrderId:       order.Id,
-			ProductId:     p,
-			ProductAmount: req.Amount[i],
+			ProductId:     pid,
+			ProductAmount: count,
 		}
+		i++
 	}
 	// debug : diff of batch vs create
 	if err = tx.Create(&details).Error; err != nil {
