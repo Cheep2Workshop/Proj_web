@@ -82,8 +82,11 @@ mysql百萬級query沒啥問題
 訂單一定成功
 
 sql preload
-
+sql index
+sql explain
 sql partition
+Pt online schema change
+elastic search (不要懂太多)
 水平拆分、垂直拆分
 
 刪除db時也要刪除cache(redis)
