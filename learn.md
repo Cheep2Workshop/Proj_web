@@ -87,6 +87,12 @@ mysql百萬級query沒啥問題
 sql preload
 sql explain
 sql partition
+sql file group
+sql 讀寫分離(master-slave)
+sql 分表分庫
+sql 垂直拆分(不常用/常用欄位切分)
+sql 水平拆分(partition)
+sql lock
 Pt online schema change
 elastic search (不要懂太多)
 水平拆分、垂直拆分
