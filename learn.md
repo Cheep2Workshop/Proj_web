@@ -70,6 +70,9 @@ N+1 query problem
 ### 8/21
 join & preload
 
+### 8/25
+sql index
+
 ### homework
 
 哪個客人買最多A商品
@@ -82,7 +85,6 @@ mysql百萬級query沒啥問題
 訂單一定成功
 
 sql preload
-sql index
 sql explain
 sql partition
 Pt online schema change
