@@ -87,7 +87,6 @@ mysql百萬級query沒啥問題
 
 sql preload
 sql explain
-
 sql file group
 sql 讀寫分離(master-slave)
 sql 分表分庫
