@@ -74,6 +74,13 @@ join & preload
 sql index
 sql partition
 
+### 8/28
+sql lock
+
+### 8/29
+sql 讀寫分離(master-slave)
+sql 冷熱資料
+
 ### homework
 
 哪個客人買最多A商品
@@ -88,11 +95,9 @@ mysql百萬級query沒啥問題
 sql preload
 sql explain
 sql file group
-sql 讀寫分離(master-slave)
 sql 分表分庫
 sql 垂直拆分(不常用/常用欄位切分)
 sql 水平拆分(partition)
-sql lock
 Pt online schema change
 message queue
 elastic search (不要懂太多)
