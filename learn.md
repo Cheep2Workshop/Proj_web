@@ -69,6 +69,7 @@ N+1 query problem
 
 ### 8/21
 join & preload
+sql preload
 
 ### 8/25
 sql index
@@ -92,7 +93,6 @@ sql 冷熱資料
 mysql百萬級query沒啥問題
 訂單一定成功
 
-sql preload
 sql explain
 sql file group
 sql 分表分庫
