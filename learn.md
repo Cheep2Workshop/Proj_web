@@ -82,6 +82,9 @@ sql lock
 sql 讀寫分離(master-slave)
 sql 冷熱資料
 
+### 8/31
+sql injection
+
 ### homework
 
 哪個客人買最多A商品
@@ -109,7 +112,7 @@ elastic search (不要懂太多)
 
 hashids
 notify
-sql injection
+
 regex
 websocket
 dotenv
